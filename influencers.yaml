@@ -1,0 +1,65 @@
+# Who to track. Every source is optional; add whichever ones a person actually uses.
+#
+#   x:        X/Twitter handle (best effort, see README "About X/Twitter")
+#   bluesky:  Bluesky handle, e.g. someone.bsky.social
+#   mastodon: Mastodon address, e.g. @user@mastodon.social
+#   youtube:  YouTube channel ID (starts with UC...)
+#   rss:      list of RSS/Atom feed URLs (Substack: https://<name>.substack.com/feed)
+
+window_hours: 24
+max_posts_per_person: 8
+display_timezone: UTC # e.g. America/New_York, Asia/Kolkata, Europe/London
+
+people:
+  # --- Product Management ---
+  - name: Lenny Rachitsky
+    category: Product Management
+    x: lennysan
+    bluesky: lennysan.bsky.social
+    rss: [https://www.lennysnewsletter.com/feed]
+
+  - name: Shreyas Doshi
+    category: Product Management
+    x: shreyas
+
+  - name: Marty Cagan
+    category: Product Management
+    rss: [https://www.svpg.com/feed/]
+
+  - name: Teresa Torres
+    category: Product Management
+    rss: [https://www.producttalk.org/feed/]
+
+  - name: Aakash Gupta
+    category: Product Management
+    x: aakashg0
+    rss: [https://www.news.aakashg.com/feed]
+
+  # --- AI ---
+  - name: Andrej Karpathy
+    category: AI
+    x: karpathy
+    bluesky: karpathy.bsky.social
+    youtube: UCXUPKJO5MZQN11PqgIvyuvQ
+
+  - name: Ethan Mollick
+    category: AI
+    x: emollick
+    bluesky: emollick.bsky.social
+    rss: [https://www.oneusefulthing.org/feed]
+
+  - name: Simon Willison
+    category: AI
+    bluesky: simonwillison.net
+    rss: [https://simonwillison.net/atom/everything/]
+
+  - name: swyx
+    category: AI
+    x: swyx
+    bluesky: swyx.io
+    rss: [https://www.latent.space/feed]
+
+  - name: Sam Altman
+    category: AI
+    x: sama
+    rss: [https://blog.samaltman.com/posts.atom]

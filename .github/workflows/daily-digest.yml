@@ -1,0 +1,65 @@
+name: Daily influencer digest
+
+on:
+  schedule:
+    # GitHub cron is always UTC. 08:00 UTC here; examples for other zones:
+    #   8:00 AM India (IST)       -> "30 2 * * *"
+    #   8:00 AM London (BST/GMT)  -> "0 7 * * *" in summer, "0 8 * * *" in winter
+    #   8:00 AM New York (EDT/EST)-> "0 12 * * *" in summer, "0 13 * * *" in winter
+    #   8:00 AM San Francisco     -> "0 15 * * *" in summer, "0 16 * * *" in winter
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      X_RSS_TEMPLATE: ${{ vars.X_RSS_TEMPLATE }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Collect posts
+        id: collect
+        run: python digest.py --config influencers.yaml --out digests
+
+      # Optional. Runs only when the CLAUDE_CODE_OAUTH_TOKEN secret exists. The token comes from
+      # `claude setup-token` and bills against your Claude Pro/Max plan, not the paid API.
+      - name: Add AI highlights (Claude Code on your Claude subscription)
+        if: env.CLAUDE_CODE_OAUTH_TOKEN != ''
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          DIGEST_PATH: ${{ steps.collect.outputs.markdown }}
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          prompt="$(sed "s#DIGEST_PATH#${DIGEST_PATH}#" prompts/claude-highlights.md)"
+          claude -p "$prompt" --allowedTools "Read,Edit" --permission-mode acceptEdits --max-turns 6
+          cp "$DIGEST_PATH" digests/latest.md
+
+      - name: Show digest in the run summary
+        run: cat "${{ steps.collect.outputs.markdown }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit digest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add digests
+          git diff --cached --quiet && exit 0
+          git commit -m "Digest for $(basename "${{ steps.collect.outputs.markdown }}" .md)"
+          git push
